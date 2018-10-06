@@ -3,66 +3,53 @@ var enumerations = require('./../enumerations');
 var _ = require('lodash');
 
 var GameSchema = new globals.mongoose.Schema({
-	system: {
-		type: String,
-		required: true
-	},
-	currency: {
-		type: String,
-		required: true
-	},
-	tier: {
-		type: String,
-		required: true
-	},
-	owner: {
-		type: String,
-		required: true
-	},
-	name: {
-		type: String,
-		required: true
-	},
-	active: {
-		type: Boolean,
-		default: true
-	},
-	production: {
-		type: Boolean,
-		default: false
-	},
-	principal: {
-		type: Number,
-		required: true
-	},
-	balance: {
-		type: Number,
-		required: true
-	},
-	activeTrades: {
-		type: Number,
-		default: 0
-	},
-	maxTrades: {
-		type: Number,
-		default: 3
-	},
-	watchlists: {
-		type: [String]
-	},
-	transactions: [{
-		method: {
-			type: String
+  players: [{
+		playerId: {
+			type: String,
+			required: true
 		},
-		amount: {
-			type: Number
-		},
-		executionTime: {
-			type: Number,
-    	default: globals.moment().format('x')
+    category: {
+      type: String,
+      required: true
+    },
+		color: {
+			type: String,
+			required: true
 		}
 	}],
-	dateCreated: {
+	territories: [{
+		placement: {
+			type: Number,
+			required: true
+		},
+		ownership: {
+			playerId: {
+				type: String,
+				required: true
+			}
+		},
+		units: [{
+			owner: {
+				type: String,
+				required: true
+			},
+			category: {
+				type: String,
+				required: true
+			}
+		}],
+		battles: [{
+			winner: {
+				type: String,
+				required: true
+			}
+		}]
+	}],
+  status: {
+    type: String,
+    default: "ACTIVE"
+  },
+	startTime: {
 		type: Number,
 		default: globals.moment().format('x')
 	}

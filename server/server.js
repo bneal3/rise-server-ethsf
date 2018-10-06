@@ -21,8 +21,6 @@ var {serverlog} = require('./middleware/serverlog');
 
 // ROUTES
 var players = require('./routes/players');
-var territories = require('./routes/territories');
-var maps = require('./routes/maps');
 var games = require('./routes/games');
 
 //******************
@@ -39,8 +37,6 @@ app.use(helmet());
 
 // Routes
 app.use('/players', players);
-app.use('/territories', territories);
-app.use('/maps', maps);
 app.use('/games', games);
 
 // SERVER INITIALIZATION

@@ -24,10 +24,6 @@ exports.mongoose =  mongoose;
 // Models
 var {Player} = require('./model/player.js');
 exports.Player = Player;
-var {Territory} = require('./model/territory.js');
-exports.Territory = Territory;
-var {Map} = require('./model/map.js');
-exports.Map = Map;
 var {Game} = require('./model/game.js');
 exports.Game = Game;
 
