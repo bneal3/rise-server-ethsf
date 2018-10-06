@@ -2,13 +2,14 @@ require('./../config/config.js');
 
 var globals = require('./../globals');
 
-// FUNCTION: Determines whether or not route has an admin access token and verifies it
-var admin = (req, res, next) => {
-  // FLOW: Check for admin token
-  var key = req.header('x-admin');
+// FUNCTION: Determines whether or not route has an x-auth access token and verifies it
+var user = (req, res, next) => {
+  var token;
+  var access;
 
-  if(key === process.env.ADMIN_SECRET) {
-    next();
+  if(req.header('x-auth')) {
+    token = req.header('x-auth');
+    access = 'auth';
   } else {
     return res.status(401).send({
       response: new globals.Response('ERROR',
@@ -16,20 +17,28 @@ var admin = (req, res, next) => {
       )
     });
   }
-}
 
-// FUNCTION: Makes sure environment is non-production and determines whether or not route has an admin access token and verifies it
-var staging = (req, res, next) => {
-  // FLOW: Make sure not in development or production
-  if(process.env.NODE_ENV){
-    return res.status(401).send({
+  // FLOW: Find user by token
+  globals.Player.findByToken(access, token).then((player) => {
+    if (!player) {
+      console.log('Token not found.');
+      return Promise.reject();
+    }
+
+    // FLOW: Sets the user and token
+    req.player = player;
+    req.token = token;
+
+    console.log('\n' + req.player.username + '\n');
+
+    next();
+  }).catch((e) => {
+    res.status(401).send({
       response: new globals.Response('ERROR',
-        'Only allowed to use this route in non-production environments.'
+        'Not authorized.'
       )
     });
-  } else {
-    next();
-  }
+  });
 }
 
-module.exports = {admin, staging};
+module.exports = {user};

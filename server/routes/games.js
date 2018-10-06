@@ -4,21 +4,18 @@ var _ = require('lodash');
 var express = require('express'),
     router = express.Router();
 
-router.post('/', globals.authenticate.admin, (req, res) => {
-  var body = _.pick(req.body, ['system', 'currency', 'tier', 'owner', 'name', 'production', 'principal']);
-
-  body.balance = body.principal;
-  body.watchlists = [];
+router.post('/', globals.authenticate.user, (req, res) => {
+  var body = _.pick(req.body, ['players']);
 
   console.log(body);
 
-  var account = new globals.Account(body);
+  var game = new globals.Game(body);
 
-  account.save().then(() => {
+  game.save().then(() => {
     return res.status(200).send({
       response: new globals.Response('SUCCESS',
-        'Account created successfully.',
-        account
+        'Game created successfully.',
+        game
       )
     });
   }).catch((e) => {
@@ -30,14 +27,14 @@ router.post('/', globals.authenticate.admin, (req, res) => {
   });
 });
 
-router.get('/id/:id', globals.authenticate.admin, (req, res) => {
+router.get('/id/:id', (req, res) => {
   var id = req.params.id;
 
-  globals.Account.findById(id).then((account) => {
+  globals.Game.findById(id).then((game) => {
     return res.status(200).send({
       response: new globals.Response('SUCCESS',
-        'Account retrieved successfully.',
-        account
+        'Game retrieved successfully.',
+        game
       )
     });
   }).catch((e) => {
@@ -49,12 +46,12 @@ router.get('/id/:id', globals.authenticate.admin, (req, res) => {
   });
 });
 
-router.get('/', globals.authenticate.admin, (req, res) => {
-  globals.Account.find({}).then((accounts) => {
+router.get('/', (req, res) => {
+  globals.Game.find({}).then((games) => {
     return res.status(200).send({
       response: new globals.Response('SUCCESS',
-        'Accounts retrieved successfully.',
-        accounts
+        'Games retrieved successfully.',
+        games
       )
     });
   }).catch((e) => {
@@ -66,65 +63,30 @@ router.get('/', globals.authenticate.admin, (req, res) => {
   });
 });
 
-router.patch('/id/:id', globals.authenticate.admin, (req, res) => {
+router.patch('/state/:id', globals.authenticate.user, (req, res) => {
   var id = req.params.id;
-  var body = _.pick(req.body, ['production', 'maxTrades']);
+  // FLOW: Extract changes
+  var body = _.pick(req.body, ['territories']);
 
-  if(!body.production){
-    body.production = false;
-  }
+  // TODO: Call solidity functions to update state of game
 
-  globals.Account.findOneAndUpdate({
+  globals.Game.findOneAndUpdate({
     id: id
   }, {
-    production: body.production,
-    maxTrades: body.maxTrades
+    territories: body.territories
   }, {
     new: true
-  }).then((account) => {
+  }).then((game) => {
     return res.status(404).send({
       response: new globals.Response('SUCCESS',
-        'Account updated successfully.',
-        account
+        'Game updated successfully.',
+        game
       )
     });
   }).catch((e) => {
     return res.status(400).send({
       response: new globals.Response('ERROR',
         'Bad request.'
-      )
-    });
-  });
-});
-
-router.delete('/id/:id', globals.authenticate.admin, (req, res) => {
-  var id = req.params.id;
-
-  // FLOW: Reject request if not a valid Id
-  if(!globals.ObjectId.isValid(id)){
-    return res.status(404).send({
-      response: new globals.Response('ERROR',
-        'Account id not valid.'
-      )
-    });
-  }
-
-  // FLOW: Delete account
-  globals.Account.findByIdAndRemove(id).then((account) => {
-    // FLOW: Return if account not found
-    if(!account){
-      return res.status(404).send({
-        response: new globals.Response('ERROR',
-          'Account not found.'
-        )
-      });
-    }
-
-    // FLOW: Send response
-    res.status(200).send({
-      response: new globals.Response('SUCCESS',
-        'Account deleted successfully.',
-        account
       )
     });
   });

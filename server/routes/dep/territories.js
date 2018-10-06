@@ -1,5 +1,5 @@
-var globals = require('./../globals');
-var enumerations = require('./../enumerations');
+var globals = require('./../../globals');
+var enumerations = require('./../../enumerations');
 var _ = require('lodash');
 var express = require('express'),
     router = express.Router();
